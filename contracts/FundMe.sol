@@ -7,6 +7,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 contract FundMe {
 
     address public owner;
+    address[] public funders;
     mapping(address => uint256) public addressToAmountFunded;
 
     constructor() public {
@@ -17,6 +18,7 @@ contract FundMe {
         uint256 minUSD = 50 * 1e18;
         require(getConversionRate(msg.value) >= minUSD, "Not enough funds");
         addressToAmountFunded[msg.sender] += msg.value;
+        funders.push(msg.sender);
     }
 
     function getVersion() public view returns(uint256) {
@@ -38,8 +40,17 @@ contract FundMe {
         return ethAmountInUsd;
     }
 
-    function withdraw() payable public {
+    modifier onlyOwner {
         require(msg.sender == owner, "Only the owner can withdraw");
+        _;
+    }
+
+    function withdraw() payable onlyOwner public {
         payable(msg.sender).transfer(address(this).balance);
+        for (uint256 funderIndex=0; funderIndex<funders.length; funderIndex++) {
+            address funder = funders[funderIndex];
+            addressToAmountFunded[funder] = 0;
+        }   
+        funders = new address[](0);
     }
 }
