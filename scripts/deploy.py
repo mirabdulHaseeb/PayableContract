@@ -5,7 +5,7 @@ from scripts.helpful_scripts import (
     LOCAL_BLOCKCHAIN_ENVIRONMENTS
 )
 
-def deploy_fundme():
+def deploy_fund_me():
     account = get_account()
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         price_feed_address = config["network"][network.show_active()]["eth_usd_price_feed"]
@@ -14,11 +14,13 @@ def deploy_fundme():
         price_feed_address = MockV3Aggregator[-1].address
         
 
-    FundMe.deploy(
+    fund_me = FundMe.deploy(
         price_feed_address, 
         {"from": account},
         publish_source=config["networks"][network.show_active()].get("verify")
     )
+    print(f"Contract deployed at {fund_me.address}")
+    return fund_me
 
 def main():
-    deploy_fundme()
+    deploy_fund_me()
