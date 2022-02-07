@@ -40,6 +40,13 @@ contract FundMe {
         return ethAmountInUsd;
     }
 
+    function getEntranceFee() public view returns(uint256) {
+        uint256 minimumUSD = 50 * 1e18;
+        uint256 price = getPrice();
+        uint256 precision = 1 * 10 * 1e18;
+        return (minimumUSD * precision) / price;
+    }
+
     modifier onlyOwner {
         require(msg.sender == owner, "Only the owner can withdraw");
         _;
